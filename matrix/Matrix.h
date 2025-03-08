@@ -58,6 +58,7 @@ public:
     // and the number of columns. Currently not as efficient as possible since it performs a deep copy
     // of the values. Future updates will address this issue and provide a more efficient solution using
     // shared pointers and different data holders.
+
     Matrix(const std::shared_ptr<U>& values, size_t values_count, int num_cols) :
             data(values.get(), values.get() + values_count),
             rows_count(values_count / num_cols),
@@ -113,6 +114,17 @@ public:
             }
         }
         return Matrix(result, rows_count);
+    }
+
+    std::vector<U> get_data() const {
+        return data;
+    }
+
+    size_t get_rows_count() const {
+        return rows_count;
+    }
+    size_t get_cols_count() const {
+        return cols_count;
     }
 
     void display() {

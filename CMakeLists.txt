@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 23)
 
 add_library(csr_matrix_cpp STATIC library.cpp
         matrix/Matrix.h
-        )
+        csr/CSR_matrix.h
+)
 
 add_executable(example example/main.cpp)
 target_link_libraries(example csr_matrix_cpp)
