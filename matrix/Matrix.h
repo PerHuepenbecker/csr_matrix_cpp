@@ -107,7 +107,19 @@ public:
     }
 
     Matrix T(){
+        const size_t blockSize = 64;
         std::vector<U> result(data.size());
+
+        for(size_t i=0; i < rows_count; i += blockSize){
+            for(size_t j = 0; j < cols_count; j += blockSize){
+                for(size_t ii = i; ii < std::min(i + blockSize, rows_count); ++ii){
+                    for(size_t jj = j; jj < std::min(j + blockSize, cols_count); ++jj) {
+                        result[jj * rows_count +  ii] = data[ii * cols_count + jj];
+                    }
+                }
+            }
+        }
+
         for(size_t i = 0; i < rows_count; i++){
             for(size_t j = 0; j < cols_count; j++){
                 result[j * rows_count + i] = data[i * cols_count + j];
