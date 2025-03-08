@@ -68,6 +68,13 @@ class CSRMatrix {
             std::cout<< std::endl;
         }
     }
+
+    void operator*(U scalar){
+        for (auto& element: data){
+            element *= scalar;
+        }
+    }
+
 };
 
 
