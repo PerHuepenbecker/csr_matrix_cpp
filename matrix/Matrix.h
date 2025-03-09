@@ -8,6 +8,8 @@
 #include <memory>
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
+#include <sstream>
 
 template <typename U>
 class Matrix {
@@ -45,8 +47,11 @@ public:
 
     // Constructor accepting a right hand value to avoid unnecessary copies
 
-    Matrix(std::vector<U>&& values, int cols_count)
-        :data(std::move(values)), rows_count(values.size()/cols_count), cols_count(cols_count) {
+    Matrix(std::vector<U>&& values, int cols_count_val){
+
+        data = std::move(values);
+        cols_count = cols_count_val;
+        rows_count = data.size()/cols_count;
 
         if (data.size() % cols_count != 0) {
             throw std::invalid_argument("The number of elements must be a multiple of the row length.");
@@ -77,6 +82,39 @@ public:
         if (values_count % num_cols != 0) {
             throw std::invalid_argument("The number of elements must be a multiple of the row length.");
         }
+    }
+
+    // Implementation of Cholesky decomposition for positive definite square matrices. The result is a new Matrix object.
+
+    Matrix <U> cholesky_decomposition() const {
+        if(rows_count != cols_count){
+            throw std::invalid_argument("Matrix must be square for Cholesky Decomposition");
+        }
+        std::vector<U> result(rows_count * cols_count, 0);
+
+        for (size_t i = 0; i < rows_count; ++i){
+            for(size_t j = 0; j <= i; ++j){
+                U sum = 0;
+                for(size_t k = 0; k < j; ++k) {
+                    sum += result[i * cols_count + k] * result[j * cols_count + k];
+                }
+
+                // Handling of diagonal elements
+
+                if(i == j){
+                    U value = data[i * cols_count + j] - sum;
+                    if(value <= 0){
+                        throw std::invalid_argument("Matrix must be positive definite for Cholesky Decomposition");
+                    }
+                    result[i * cols_count + j] = std::sqrt(value);
+                } else {
+
+                    // Handling of non-diagonal elements
+                    result[i * cols_count + j] = 1.0 / result[j * cols_count + j] * (data[i * cols_count + j] - sum);
+                }
+            }
+        }
+        return Matrix<U>(std::move(result), cols_count);
     }
 
     // Overloaded operator for in place addition of two matrices. The left hand matrice will hold the combined value.
@@ -217,14 +255,22 @@ public:
         return cols_count;
     }
 
-    void display() {
+
+    void display(unsigned short precision = 3) const {
+
+        std::stringstream ss;
+        ss<<std::fixed<<std::setprecision(precision);
+
         for(size_t i = 0; i < rows_count; i++){
             for(size_t j = 0; j < cols_count; j++){
-                std::cout << data[i*cols_count+j] << " ";
+                ss << data[i*cols_count+j] << " ";
             }
-            std::cout << std::endl;
+            ss << std::endl;
         }
+
+        std::cout << ss.str();
     }
+
 };
 
 #endif //CSR_MATRIX_CPP_MATRIX_H
