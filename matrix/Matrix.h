@@ -136,6 +136,24 @@ public:
         }
     }
 
+    // Matrix regularization with a small value to avoid singular matrices
+
+    void regularize(U regularization_scalar = 0.0000001){
+        // Calculate main diagonal mean
+        U mean{0};
+
+        for(size_t i = 0; i < rows_count; i++){
+            mean += data[i * cols_count + i];
+        }
+        mean /= rows_count;
+
+        U regularization_value = regularization_scalar * mean;
+
+        for(size_t i = 0; i < rows_count; i++){
+            data[i * cols_count + i] += regularization_value;
+        }
+    }
+
     // Implementation of Cholesky decomposition for positive definite square matrices. The result is a new Matrix object.
 
     Matrix <U> cholesky_decomposition() const {
@@ -156,7 +174,8 @@ public:
                 if(i == j){
                     U value = data[i * cols_count + j] - sum;
                     if(value <= 0){
-                        throw std::invalid_argument("Matrix must be positive definite for Cholesky Decomposition");
+                        throw std::invalid_argument("Matrix must be positive definite for Cholesky Decomposition. "
+                                                    "You may want to apply regularization first or use a different approach.");
                     }
                     result[i * cols_count + j] = std::sqrt(value);
                 } else {
