@@ -10,8 +10,12 @@
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
+#include <concepts>
 
 template <typename U>
+concept FloatingPoint = std::floating_point<U>;
+
+template <FloatingPoint U>
 class Matrix {
 private:
     std::vector<U> data;

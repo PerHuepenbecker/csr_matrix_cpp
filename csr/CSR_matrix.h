@@ -6,7 +6,7 @@
 
 #include "../matrix/Matrix.h"
 
-template <typename U>
+template <FloatingPoint U>
 class CSRMatrix {
     private:
     std::vector<U> data;
@@ -24,11 +24,9 @@ class CSRMatrix {
         row_ptrs.push_back(row_ptr);
         auto matrix_data = matrix.get_data();
 
-        std::cout << "Inner Checkpoint" << std::endl;
-
         for(size_t i = 0; i < rows_count; i++){
             for(size_t j = 0; j < cols_count; j++){
-                std::cout << "Inner Checkpoint 2" << std::endl;
+
                 if(matrix_data[i* cols_count + j] != 0){
                     data.push_back(matrix_data[i*cols_count + j]);
                     col_indices.push_back(j);
@@ -122,7 +120,6 @@ class CSRMatrix {
         }
         return Matrix(result, rhs.get_cols_count());
     }
-
 
 };
 
