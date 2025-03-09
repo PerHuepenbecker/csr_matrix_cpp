@@ -39,6 +39,9 @@ class CSRMatrix {
         }
     }
 
+    CSRMatrix(std::vector<U>data,std::vector<size_t> col_indices, std::vector<size_t> row_ptrs, size_t rows_count, size_t cols_count)
+        :data(data), col_indices(col_indices), row_ptrs(row_ptrs), rows_count(rows_count), cols_count(cols_count) {}
+
     // display function of CSR Matrix
     void display() {
         for (const auto &i: data) {
@@ -58,7 +61,7 @@ class CSRMatrix {
             for (size_t j = 0; j < cols_count; j++) {
                 if (k < end_index && j == col_indices[k]) {
                     std::cout << data[k] << " ";
-                    k++;  // Safely increment within bounds
+                    k++; // move to the next non-zero element
                 } else {
                     std::cout << "0 ";
                 }
@@ -67,12 +70,23 @@ class CSRMatrix {
         }
     }
 
-    // Overloaded operator for scalar multiplication of a csr matrix
+    // Overloaded operator for scalar multiplication of a csr matrix as modification in place
 
     void operator*(U scalar){
         for (auto& element: data){
             element *= scalar;
         }
+    }
+
+    // Overloaded operator for scalar multiplication of a csr matrix that returns a new CSRMatrix object
+
+    CSRMatrix <U> operator*(U scalar) const {
+        std::vector <U> scaled_data = data;
+        for (auto& element: scaled_data){
+            element *= scalar;
+        }
+
+        return CSRMatrix(data, col_indices, row_ptrs, rows_count, cols_count);
     }
 
     // Overloaded operator for matrix multiplication of a csr matrix with a dense
