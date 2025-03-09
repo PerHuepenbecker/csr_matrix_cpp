@@ -18,6 +18,54 @@ private:
     size_t rows_count;
     size_t cols_count;
 
+    // forward substitution for lower triangular matrices
+
+    std::vector<U> forward_substitution(const Matrix<U>& L, const std::vector<U>& b) {
+        if(L.get_rows_count() != L.get_cols_count()){
+            throw std::invalid_argument("Matrix must be square for forward substitution");
+        }
+        if(L.get_rows_count() != b.size()){
+            throw std::invalid_argument("Matrix and vector must have the same dimensions");
+        }
+
+        std::vector<U> result(b.size(), 0);
+
+        for(size_t i = 0; i < L.get_rows_count(); i++){
+            U sum = 0;
+            for(size_t j = 0; j < i; j++){
+                sum += L.get_data().at(i * L.get_cols_count() + j) * result.at(j);
+            }
+            result.at(i) = (b.at(i) - sum) / L.get_data().at(i * L.get_cols_count() + i);
+        }
+        return result;
+    }
+
+
+    // backward substitution for upper triangular matrices
+
+    std::vector<U> backward_substitution(const Matrix<U>& L, const std::vector<U>& b) {
+        if(L.get_rows_count() != L.get_cols_count()){
+            throw std::invalid_argument("Matrix must be square for backward substitution");
+        }
+        if(L.get_rows_count() != b.size()){
+            throw std::invalid_argument("Matrix and vector must have the same dimensions");
+        }
+
+        size_t n = L.get_rows_count();
+        std::vector<U> result(n, 0);
+
+        for (int i = n - 1; i >= 0; i--) {
+            U sum = 0;
+
+            for (size_t j = i + 1; j < n; j++) {
+                sum += L.get_data().at(i * n + j) * result.at(j);
+            }
+
+            result.at(i) = (b.at(i) - sum) / L.get_data().at(i * n + i);
+        }
+        return result;
+    }
+
 public:
 
     // Generic Constructor accepting any container that provides begin and end iterators
@@ -255,6 +303,24 @@ public:
         return cols_count;
     }
 
+    std::vector<U> solve_cholesky(const std::vector<U>& b) {
+        if(rows_count != cols_count){
+            throw std::invalid_argument("Matrix must be square for Cholesky Decomposition");
+        }
+        if(rows_count != b.size()){
+            throw std::invalid_argument("Matrix and vector must have the same dimensions");
+        }
+
+        auto L = cholesky_decomposition();
+
+        std::cout << "Decomposed" << std::endl;
+
+        auto y = forward_substitution(L, b);
+
+        std::cout << "Forward Substituted" << std::endl;
+
+        return backward_substitution(L.T(), y);
+    }
 
     void display(unsigned short precision = 3) const {
 
