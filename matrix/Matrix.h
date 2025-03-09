@@ -4,6 +4,8 @@
 #ifndef CSR_MATRIX_CPP_MATRIX_H
 #define CSR_MATRIX_CPP_MATRIX_H
 
+
+
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -79,13 +81,23 @@ public:
             rows_count(data.size() / cols_count),
             cols_count(cols_count)
     {
+        if (data.size() == 0 ) {
+            throw std::invalid_argument("Input data must not be empty.");
+        }
+
         if (data.size() % cols_count != 0) {
             throw std::invalid_argument("The number of elements must be a multiple of the row length.");
         }
     }
 
     // Constructor accepting a vector of vectors of type U
-    Matrix(const std::vector<std::vector<U>>& values) {
+    explicit Matrix(const std::vector<std::vector<U>>& values) {
+
+        if (values.empty()) {
+            throw std::invalid_argument("Matrix must have at least one row.");
+        }
+
+
         cols_count = values.at(0).size();
         for (const auto& row: values){
             if (row.size() != cols_count) {
@@ -100,6 +112,10 @@ public:
     // Constructor accepting a right hand value to avoid unnecessary copies
 
     Matrix(std::vector<U>&& values, int cols_count_val){
+
+        if (values.empty()) {
+            throw std::invalid_argument("Matrix must have at least one row.");
+        }
 
         data = std::move(values);
         cols_count = cols_count_val;
@@ -319,12 +335,14 @@ public:
         return data;
     }
 
-    size_t get_rows_count() const {
+    [[nodiscard]] size_t get_rows_count() const {
         return rows_count;
     }
-    size_t get_cols_count() const {
+    [[nodiscard]] size_t get_cols_count() const {
         return cols_count;
     }
+
+    // Method to solve a linear system of equations using the Cholesky decomposition. The method returns a new std::vector
 
     std::vector<U> solve_cholesky(const std::vector<U>& b) {
         if(rows_count != cols_count){
@@ -344,6 +362,8 @@ public:
 
         return backward_substitution(L.T(), y);
     }
+
+    // Method to calculate the inverse of a positive definite square matrix using the Cholesky decomposition. The method returns a new Matrix object.
 
     Matrix<U> inverse_cholesky(){
         if(rows_count != cols_count) {

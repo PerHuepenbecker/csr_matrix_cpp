@@ -114,8 +114,6 @@ class CSRMatrix {
                     result[i*rhs.get_cols_count()+l] += value * rhs.get_data()[j * rhs.get_cols_count() + l];
                 }
 
-
-
             }
         }
         return Matrix(result, rhs.get_cols_count());
