@@ -322,6 +322,28 @@ public:
         return backward_substitution(L.T(), y);
     }
 
+    Matrix<U> inverse_cholesky(){
+        if(rows_count != cols_count) {
+            throw  std::invalid_argument("Matrix must be square for Cholesky Decomposition");
+        }
+
+        Matrix <U> L = this->cholesky_decomposition();
+        std::vector <U> result(rows_count * cols_count, 0);
+
+        std::vector <U> e_i(rows_count, 0);
+        for (size_t i = 0; i < rows_count; i++) {
+
+            std::fill(e_i.begin(), e_i.end(), 0);
+            e_i[i] = 1;
+            auto y = forward_substitution(L, e_i);
+            auto x = backward_substitution(L.T(), y);
+            for (size_t j = 0; j < rows_count; j++) {
+                result[j * cols_count + i] = x[j];
+            }
+        }
+        return Matrix<U>(std::move(result), cols_count);
+    }
+
     void display(unsigned short precision = 3) const {
 
         std::stringstream ss;
