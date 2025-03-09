@@ -79,6 +79,59 @@ public:
         }
     }
 
+    // Overloaded operator for in place addition of two matrices. The left hand matrice will hold the combined value.
+
+    void operator+=(const Matrix& rhs) {
+        if(rows_count != rhs.rows_count || cols_count != rhs.cols_count) {
+            throw std::invalid_argument("Matrices must have the same dimensions.");
+        }
+        std::transform(data.begin(), data.end(), rhs.data.begin(), data.begin(), std::plus<U>());
+    }
+
+    // Overloaded operator for in place subtraction of two matrices. The left hand matrice will hold the combined value.
+
+    void operator-=(const Matrix& rhs){
+        if(rows_count != rhs.rows_count || cols_count != rhs.cols_count){
+            throw std::invalid_argument("Matrices must have the same dimensions.");
+        }
+
+        std::transform(data.begin(), data.end(), rhs.data.begin(), data.begin(), std::minus<U>());
+    }
+
+    // Overloaded operator for scalar multiplication of a matrix. The matrix will be modified in place.
+
+    void operator*=(const U scalar){
+        std::transform(data.begin(), data.end(), data.begin(), [scalar](U value) {return value*scalar;});
+    }
+
+    void operator*=(const Matrix& rhs){
+        if(cols_count != rhs.rows_count){
+            throw std::invalid_argument("Incompatible matrix dimensions for multiplication");
+        }
+
+        // Temporary buffer to store the result of the matrix multiplication - necessary
+        // to avoid modification of the original data buffer during the multiplication which
+        // would corrupt the result.
+
+        std::vector<U> tmp_result(rows_count * rhs.cols_count, 0);
+
+        for (size_t i = 0; i < rows_count; i++){
+            for(size_t k = 0; k < cols_count; k++){
+                U value = data[i * cols_count + k];
+
+                for(size_t j = 0; j < rhs.cols_count; j++){
+                    tmp_result[i*rhs.cols_count + j] += value * rhs.data[k * rhs.cols_count + j];
+                }
+            }
+        }
+
+        // move the result back to the original data buffer to avoid unnecessary copies
+        data = std::move(tmp_result);
+    }
+
+    // Overloaded operator for addition of two matrices. The matrices must have the same dimensions.
+    // The result is a new Matrix object.
+
     friend Matrix operator+(const Matrix& lhs, const Matrix& rhs) {
         if(lhs.rows_count != rhs.rows_count || lhs.cols_count != rhs.cols_count){
             throw std::invalid_argument("Matrices must have the same dimensions.");
@@ -99,6 +152,9 @@ public:
         return Matrix(result, lhs.cols_count);
     }
 
+    // Overloaded operator for matrix multiplication of two matrices. Uses the ikj order matrix multiplication algorithm
+    // to achieve better cache performance. The result is a new Matrix object.
+
     friend Matrix operator*(const Matrix&lhs, const Matrix&rhs) {
         if (lhs.cols_count != rhs.rows_count) {
             throw std::invalid_argument(
@@ -117,6 +173,16 @@ public:
         }
         return Matrix(std::move(result), rhs.cols_count);
     }
+
+    // Scalar multiplication of a matrix. The result is a new Matrix object.
+
+    friend Matrix operator*(Matrix& lhs, const U scalar) {
+        std::vector<U> result(lhs.data.size());
+        std::transform(lhs.data.begin(), lhs.data.end(),result.begin(), [scalar](U value) {return value*scalar;});
+    }
+
+    // Method to transpose the matrix. The method uses a block transpose algorithm to
+    // achieve better cache performance. The block size is set to 64 and the method returns a new Matrix object.
 
     Matrix T(){
         const size_t blockSize = 64;
