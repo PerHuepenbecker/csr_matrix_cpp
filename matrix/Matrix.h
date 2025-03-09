@@ -43,6 +43,16 @@ public:
         rows_count = values.size();
     }
 
+    // Constructor accepting a right hand value to avoid unnecessary copies
+
+    Matrix(std::vector<U>&& values, int cols_count)
+        :data(std::move(values)), rows_count(values.size()/cols_count), cols_count(cols_count) {
+
+        if (data.size() % cols_count != 0) {
+            throw std::invalid_argument("The number of elements must be a multiple of the row length.");
+        }
+    }
+
     // Constructor accepting a vector of type U and the number of columns
     Matrix(const std::vector<U>& values, int cols_count) :
             data(values),
@@ -90,20 +100,22 @@ public:
     }
 
     friend Matrix operator*(const Matrix&lhs, const Matrix&rhs) {
-        if(lhs.cols_count != rhs.rows_count){
-            throw std::invalid_argument("The number of columns in the first matrix must be equal to the number of rows in the second matrix.");
+        if (lhs.cols_count != rhs.rows_count) {
+            throw std::invalid_argument(
+                    "The number of columns in the first matrix must be equal to the number of rows in the second matrix.");
         }
+
         std::vector<U> result(lhs.rows_count * rhs.cols_count);
-        for(size_t i = 0; i < lhs.rows_count; i++){
-            for(size_t j = 0; j < rhs.cols_count; j++){
-                U sum = 0;
-                for(size_t k = 0; k < lhs.cols_count; k++){
-                    sum += lhs.data[i * lhs.cols_count + k] * rhs.data[k * rhs.cols_count + j];
+        for (size_t i = 0; i < lhs.rows_count; i++) {
+
+            for (size_t k = 0; k < lhs.cols_count; k++) {
+                U lhs_value = lhs.data[i * lhs.cols_count + k];
+                for (size_t j = 0; j < rhs.cols_count; j++) {
+                    result[i * rhs.cols_count + j] += lhs_value * rhs.data[k * rhs.cols_count + j];
                 }
-                result[i * rhs.cols_count + j] = sum;
             }
         }
-        return Matrix(result, rhs.cols_count);
+        return Matrix(std::move(result), rhs.cols_count);
     }
 
     Matrix T(){
