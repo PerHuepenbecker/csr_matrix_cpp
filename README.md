@@ -45,7 +45,7 @@ Matrix<double> matrix_t = matrix.T()
 matrix_t.display();
 
 // Perform scalar multiplication in place or return a new matrix
-matrix_t * 2.0; // In place
+matrix_t *= 2.0; // In place
 Matrix<double> matrix_scaled = matrix_t * 2.0; // New matrix
 
 // Use a different constructor to create a 1x3 matrix
@@ -73,7 +73,7 @@ csr_matrix.display();
 csr_matrix.display_full();
 
 // Perform matrix multiplication of a CSR matrix with a dense matrix
-Matrix<double> matrix_2({{2}{2}{2}});
+Matrix<double> matrix_2({{2},{2},{2}});
 
 // Perform matrix multiplication only iteration over the non-zero values of the CSR matrix
 Matrix<double> matrix_result = csr_matrix * matrix_2;
