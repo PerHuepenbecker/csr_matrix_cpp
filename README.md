@@ -1,13 +1,14 @@
 ## Basic C++ library for matrix operations  
 
 This tiny library contains a simple implementation of basic matrix operations, including the Compressed Sparse Row  (CSR) approach for efficient operations on sparse matrices.
-I wrote this library as a tiny refresher on linear algebra and specifically on matrices and as a preparation for my bachelors thesis. 
+I wrote this library as a tiny refresher on linear algebra and specifically on matrices and as a preparation for my bachelors thesis which will involve a focused view on efficient GPU
+task scheduling for CSR matrices which can be considered a irregular task for GPUs. 
 
 ### Features
 
 - templated code using concept constraints
 - matrix addition, subtraction, multiplication implemented via operator overloading
-- transpose, inverse calculation
+- transpose, inverse calculation via Cholesky decomposition
 - CSR matrix representation
 - basic CSR matrix operations (addition, subtraction, multiplication)
 - basic matrix decomposition (Cholesky)
@@ -21,7 +22,7 @@ I wrote this library as a tiny refresher on linear algebra and specifically on m
 
 ### Usage
 
-Include the header file `csr_matrix_library.h` in your project and use the `Matrix` class to create matrices. The `CSRMatrix` class is used to create matrices in the CSR format. 
+Include the header file `csr_matrix_library.h` in your project and use the `Matrix` class to create matrices. The `CSRMatrix` class is used to create matrices in the CSR format.
 
 ### Examples
 
