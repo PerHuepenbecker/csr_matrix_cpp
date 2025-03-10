@@ -5,7 +5,6 @@
 #define CSR_MATRIX_CPP_MATRIX_H
 
 
-
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -76,7 +75,7 @@ public:
 
     // Generic Constructor accepting any container that provides begin and end iterators
     template<typename Iterable>
-    Matrix(const Iterable& values, int cols_count) :
+    Matrix(const Iterable& values, size_t cols_count) :
             data(values.begin(), values.end()),
             rows_count(data.size() / cols_count),
             cols_count(cols_count)
